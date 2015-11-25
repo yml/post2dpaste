@@ -16,6 +16,7 @@ import (
 var (
 	dpasteUrl string = "https://dpaste.de/api/"
 	lexer     string
+	filename  string
 )
 
 func init() {
@@ -30,8 +31,23 @@ func main() {
 	writers = append(writers, os.Stdout)
 	writers = append(writers, &bufInput)
 	mWriter := io.MultiWriter(writers...)
-	if _, err := io.Copy(mWriter, os.Stdin); err != nil {
-		log.Fatal("Error while copying from stdin to stdout", err)
+
+	if len(os.Args) == 1 {
+		mReader := io.MultiReader(os.Stdin, os.Stderr)
+		if _, err := io.Copy(mWriter, mReader); err != nil {
+			log.Fatal("Error while copying from stdin to stdout", err)
+		}
+	} else {
+		for _, filename = range os.Args[1:] {
+			fh, err := os.Open(filename)
+			if err != nil {
+				log.Fatal("Error while opening:", filename, err)
+			}
+			_, err = io.Copy(mWriter, fh)
+			if err != nil {
+				log.Fatal("Error while copying:", filename, err)
+			}
+		}
 	}
 
 	u, err := url.ParseRequestURI(dpasteUrl)
@@ -55,6 +71,15 @@ func main() {
 	}
 	if _, err := fw.Write([]byte(lexer)); err != nil {
 		log.Fatal("Error while writing to `lexer` field", err)
+	}
+	if filename != "" {
+		fw, err = w.CreateFormField("filename")
+		if err != nil {
+			log.Fatal("Error while creating `filename` field", err)
+		}
+		if _, err := fw.Write([]byte(filename)); err != nil {
+			log.Fatal("Error while writing to `filename` field", err)
+		}
 	}
 	// Don't forget to close the multipart writer.
 	// If you don't close it, your request will be missing the terminating boundary.
