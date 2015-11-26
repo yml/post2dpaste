@@ -20,7 +20,7 @@ var (
 )
 
 func init() {
-	flag.StringVar(&lexer, "lexer", "go", "lexer options are: python, go, c, mysql, ...")
+	flag.StringVar(&lexer, "lexer", "default", "lexer options are: python, go, c, mysql, ...")
 }
 
 func main() {
@@ -48,6 +48,12 @@ func main() {
 				log.Fatal("Error while copying:", filename, err)
 			}
 		}
+	}
+
+	if lexer == "default" && filename == "" {
+		lexer = "GO"
+	} else if lexer == "default" && filename != "" {
+		lexer = ""
 	}
 
 	u, err := url.ParseRequestURI(dpasteUrl)
