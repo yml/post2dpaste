@@ -33,8 +33,7 @@ func main() {
 	mWriter := io.MultiWriter(writers...)
 
 	if len(os.Args) == 1 {
-		mReader := io.MultiReader(os.Stdin, os.Stderr)
-		if _, err := io.Copy(mWriter, mReader); err != nil {
+		if _, err := io.Copy(mWriter, os.Stdin); err != nil {
 			log.Fatal("Error while copying from stdin to stdout", err)
 		}
 	} else {
@@ -51,7 +50,7 @@ func main() {
 	}
 
 	if lexer == "default" && filename == "" {
-		lexer = "GO"
+		lexer = "go"
 	} else if lexer == "default" && filename != "" {
 		lexer = ""
 	}
