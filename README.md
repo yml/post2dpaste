@@ -1,7 +1,7 @@
 # post2dpaste
  This repository contains a program that transparently print to os.Stdout and post to dpaste.
- 
- ## Usage
+
+## Usage
 
 **pipe to `post2dpaste`**
 
